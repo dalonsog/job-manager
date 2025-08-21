@@ -1,13 +1,7 @@
 import enum
 import uuid
-from typing import TYPE_CHECKING
 from pydantic import EmailStr
-from sqlmodel import SQLModel, Field, Enum, Column, Relationship
-
-
-if TYPE_CHECKING:
-    from jobmanager.models.job import Job
-    from jobmanager.models.account import Account
+from sqlmodel import SQLModel, Field, Enum, Column
 
 
 class Role(str, enum.Enum):
@@ -24,22 +18,6 @@ class UserBase(SQLModel):
 
 class UserCreate(UserBase):
     password: str = Field(min_length=8, max_length=40)
-
-
-class User(UserBase, table=True):
-    id: uuid.UUID = Field(default_factory=uuid.uuid4, primary_key=True)
-    hashed_password: str
-    account_id: uuid.UUID = Field(
-        foreign_key="account.id",
-        nullable=False,
-        ondelete="CASCADE"
-    )
-    account: Account | None = Relationship(back_populates="account")
-    
-    jobs: list["Job"] = Relationship(
-        back_populates="owner",
-        cascade_delete=True
-    )
 
 
 class UserPublic(UserBase):

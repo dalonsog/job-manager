@@ -1,9 +1,13 @@
+from dotenv import load_dotenv
 from fastapi import FastAPI
-from jobmanager.routes import account, jobs, users
-from jobmanager.core.db import create_db_and_tables
+from jobmanager.routes import accounts, jobs, users
+from jobmanager.core.db import init_db
+
+# Only for development purposes. Remove on production
+load_dotenv()
 
 app = FastAPI()
-app.include_router(account.router)
+app.include_router(accounts.router)
 app.include_router(users.router)
 app.include_router(jobs.router)
 
@@ -13,6 +17,7 @@ def root():
     return {"message": "Hello world"}
 
 
+# Only for development purposes. Remove on production
 @app.on_event("startup")
 def on_startup():
-    create_db_and_tables()
+    init_db()
