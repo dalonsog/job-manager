@@ -12,6 +12,10 @@ class AccountCreate(AccountBase):
     pass
 
 
+class AccountRegister(SQLModel):
+    name: str = Field(max_length=256)
+
+
 class AccountPublic(AccountBase):
     id: uuid.UUID
     

@@ -39,3 +39,17 @@ def get_account_by_name(session: Session, name: str) -> Account:
 def remove_account(session: Session, account: Account) -> None:
     session.delete(account)
     session.commit()
+
+
+def update_account(
+    session: Session,
+    account: Account,
+    account_in: AccountCreate
+) -> Account:
+    account_data = account_in.model_dump(exclude_unset=True)
+    extra_data = {}
+    account.sqlmodel_update(account_data, update=extra_data)
+    session.add(account)
+    session.commit()
+    session.refresh(account)
+    return account
