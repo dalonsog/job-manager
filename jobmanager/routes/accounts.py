@@ -76,7 +76,41 @@ def deactivate_account(
             detail=f"Account {account_id} is already deactivated"
         )
     
-    account_in = AccountCreate(**account, is_active=False)
+    account_data = account.model_dump()
+    account_data['is_active'] = False
+    account_in = AccountCreate(**account_data)
+    updated_account = update_account(
+        session=session,
+        account=account,
+        account_in=account_in
+    )
+
+    return updated_account
+
+
+@router.put("/{account_id}/activate", response_model=AccountPublic)
+def activate_account(
+    session: SessionDep,
+    account_id: uuid.UUID,
+):
+    # check whether current user is admin
+    # only admins should be able to deactivate accounts
+    account = get_account_by_id(session=session, account_id=account_id)
+    if not account:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail=f"Account {account_id} not found"
+        )
+    
+    if account.is_active:
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail=f"Account {account_id} is already active"
+        )
+    
+    account_data = account.model_dump()
+    account_data['is_active'] = True
+    account_in = AccountCreate(**account_data)
     updated_account = update_account(
         session=session,
         account=account,
