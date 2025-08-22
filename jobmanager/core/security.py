@@ -1,14 +1,13 @@
 import os
 import jwt
+from jwt.exceptions import InvalidTokenError
 from datetime import datetime, timedelta, timezone
 from passlib.context import CryptContext
-from sqlmodel import Session
-from jobmanager.models.dbmodels import User
+from jobmanager.models.token import Token, TokenData
 
 
 SECRET_KEY = os.environ.get("SECRET_KEY")
 ALGORITHM = os.environ.get("ALGORITHM")
-
 
 pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
 
@@ -30,3 +29,14 @@ def create_access_token(
     data_to_encode.update({"exp": expire})
     encoded_jwt = jwt.encode(data_to_encode, SECRET_KEY, algorithm=ALGORITHM)
     return encoded_jwt
+
+
+def get_token_payload(token: Token) -> TokenData:
+    try:
+        payload: dict = jwt.decode(token, SECRET_KEY, algorithms=ALGORITHM)
+        username = payload.get("sub")
+        if not username:
+            raise InvalidTokenError
+        return TokenData(username=username)
+    except InvalidTokenError:
+        raise

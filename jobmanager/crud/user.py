@@ -11,6 +11,29 @@ def get_user_by_email(session: Session, user_email: str) -> User:
     return user
 
 
+def get_user_by_id(
+    session: Session,
+    user_id: uuid.UUID
+) -> User:
+    user = session.get(User, user_id)
+    return user
+
+
+def get_users(
+    session: Session,
+    offset: int,
+    limit: int,
+    account_id: uuid.UUID | None = None
+) -> list[User]:
+    if account_id:
+        pre_statement = select(User)
+    else:
+        pre_statement = select(User).where(User.account_id == account_id)
+    statement = pre_statement.offset(offset).limit(limit)
+    users = session.exec(statement).all()
+    return users
+
+
 def create_user(
     session: Session,
     user: UserCreate,

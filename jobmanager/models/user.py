@@ -20,6 +20,10 @@ class UserCreate(UserBase):
     password: str = Field(min_length=8, max_length=40)
 
 
+class UserCreateInAccount(UserCreate):
+    account_id: uuid.UUID
+
+
 class UserPublic(UserBase):
     id: uuid.UUID
     account_id: uuid.UUID

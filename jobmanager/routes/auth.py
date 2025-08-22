@@ -1,10 +1,8 @@
 import os
-import uuid
 from datetime import timedelta
 from typing import Annotated
 from fastapi import APIRouter, HTTPException, status, Depends
 from fastapi.security import OAuth2PasswordRequestForm
-from jobmanager.models.dbmodels import User
 from jobmanager.models.token import Token
 from jobmanager.core.deps import SessionDep
 from jobmanager.crud.user import authenticate_user
@@ -30,13 +28,13 @@ async def login(
 
     if not user:
         raise HTTPException(
-            status_code=status.HTTP_400_BAD_REQUEST,
+            status_code=status.HTTP_401_UNAUTHORIZED,
             detail="Wrong username/password combination"
         )
     
     if not user.is_active:
         raise HTTPException(
-            status_code=status.HTTP_400_BAD_REQUEST,
+            status_code=status.HTTP_401_UNAUTHORIZED,
             detail="Inactive user"
         )
     

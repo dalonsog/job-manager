@@ -1,10 +1,7 @@
-from dotenv import load_dotenv
 from fastapi import FastAPI
 from jobmanager.routes import accounts, jobs, users, auth
 from jobmanager.core.db import init_db
 
-# Only for development purposes. Remove on production
-load_dotenv()
 
 app = FastAPI()
 app.include_router(accounts.router)
