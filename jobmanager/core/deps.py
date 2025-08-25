@@ -41,9 +41,10 @@ def get_current_user(session: SessionDep, token: TokenDep) -> User:
     return user
 
 
-def get_current_active_user(
-    user: Annotated[User, Depends(get_current_user)]
-) -> User:
+CurrentUserDep = Annotated[User, Depends(get_current_user)]
+
+
+def get_current_active_user(user: CurrentUserDep) -> User:
     if not user.is_active:
         raise HTTPException(
             status_code=status.HTTP_401_UNAUTHORIZED,
@@ -52,9 +53,10 @@ def get_current_active_user(
     return user
 
 
-def get_current_active_user_admin(
-    user: Annotated[User, Depends(get_current_active_user)]
-) -> User:
+ActiveUserDep = Annotated[User, Depends(get_current_active_user)]
+
+
+def get_current_active_user_admin(user: ActiveUserDep) -> User:
     if not user.role == Role.ADMIN:
         raise HTTPException(
             status_code=status.HTTP_401_UNAUTHORIZED,
@@ -63,12 +65,19 @@ def get_current_active_user_admin(
     return user
 
 
-def get_current_active_user_admin_or_maintainer(
-    user: Annotated[User, Depends(get_current_active_user)]
-) -> User:
+ActiveAdminDep = Annotated[User, Depends(get_current_active_user_admin)]
+
+
+def get_current_active_user_admin_or_maintainer(user: ActiveUserDep) -> User:
     if not (user.role == Role.ADMIN or user.role == Role.MAINTAINER):
         raise HTTPException(
             status_code=status.HTTP_401_UNAUTHORIZED,
             detail="Not enough privileges"
         )
     return user
+
+
+ActiveAdminMaintainerDep = Annotated[
+    User,
+    Depends(get_current_active_user_admin_or_maintainer)
+]

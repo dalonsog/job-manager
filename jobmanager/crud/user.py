@@ -11,10 +11,7 @@ def get_user_by_email(session: Session, user_email: str) -> User:
     return user
 
 
-def get_user_by_id(
-    session: Session,
-    user_id: uuid.UUID
-) -> User:
+def get_user_by_id(session: Session, user_id: uuid.UUID) -> User:
     user = session.get(User, user_id)
     return user
 
@@ -68,11 +65,7 @@ def remove_user(session: Session, user: User) -> None:
     session.commit()
 
 
-def update_user(
-    session: Session,
-    user: User,
-    user_in: User
-) -> User:
+def update_user(session: Session, user: User, user_in: User) -> User:
     user_data = user_in.model_dump(exclude_unset=True)
     extra_data = {}
     user.sqlmodel_update(user_data, update=extra_data)

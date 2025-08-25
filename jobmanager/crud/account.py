@@ -12,20 +12,13 @@ def create_account(session: Session, account: AccountCreate) -> Account:
     return account_db
 
 
-def get_accounts(
-    session: Session,
-    offset: int,
-    limit: int
-) -> list[Account]:
+def get_accounts(session: Session, offset: int, limit: int) -> list[Account]:
     statement = select(Account).offset(offset).limit(limit)
     accounts = session.exec(statement).all()
     return accounts
 
 
-def get_account_by_id(
-    session: Session,
-    account_id: uuid.UUID
-) -> Account:
+def get_account_by_id(session: Session, account_id: uuid.UUID) -> Account:
     account = session.get(Account, account_id)
     return account
 

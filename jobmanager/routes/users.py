@@ -1,7 +1,8 @@
 import uuid
 from typing import Annotated
-from fastapi import APIRouter, HTTPException, status, Depends, Body, Query
+from fastapi import APIRouter, HTTPException, status, Body, Query
 from jobmanager.models.dbmodels import User
+from jobmanager.crud.account import get_account_by_id
 from jobmanager.crud.user import (
     get_users,
     get_user_by_id,
@@ -10,7 +11,7 @@ from jobmanager.crud.user import (
     remove_user,
     update_user
 )
-from jobmanager.crud.account import get_account_by_id
+from jobmanager.models.message import Message
 from jobmanager.models.user import (
     UserCreate,
     UserPublic,
@@ -18,8 +19,8 @@ from jobmanager.models.user import (
 )
 from jobmanager.core.deps import (
     SessionDep,
-    get_current_active_user,
-    get_current_active_user_admin_or_maintainer
+    ActiveUserDep,
+    ActiveAdminMaintainerDep
 )
 
 
@@ -29,7 +30,7 @@ router = APIRouter(prefix="/users", tags=["users"])
 @router.get("/", response_model=list[UserPublic])
 def read_users(
     session: SessionDep,
-    current_user: Annotated[User, Depends(get_current_active_user)],
+    current_user: ActiveUserDep,
     skip: int = 0,
     limit: int = 100,
 ):
@@ -48,12 +49,11 @@ def read_users(
 def read_user(
     session: SessionDep,
     user_id: uuid.UUID,
-    current_user: Annotated[User, Depends(get_current_active_user)]
+    current_user: ActiveUserDep
 ):
     user = get_user_by_id(session=session, user_id=user_id)
 
-    if not user \
-            or (current_user.role != Role.ADMIN \
+    if not user or (current_user.role != Role.ADMIN \
                     and current_user.account_id != user.account_id):
         raise HTTPException(
             status_code=status.HTTP_404_NOT_FOUND,
@@ -67,9 +67,7 @@ def read_user(
 def create_new_user(
     session: SessionDep,
     user: Annotated[UserCreate, Body()],
-    current_user: Annotated[User, Depends(
-        get_current_active_user_admin_or_maintainer
-    )],
+    current_user: ActiveAdminMaintainerDep,
     account_id: Annotated[uuid.UUID | None, Query()] = None
 ):
     user_db = get_user_by_email(session=session, user_email=user.email)
@@ -129,9 +127,7 @@ def create_new_user(
 def deactivate_user(
     session: SessionDep,
     user_id: uuid.UUID,
-    current_user: Annotated[User, Depends(
-        get_current_active_user_admin_or_maintainer
-    )]
+    current_user: ActiveAdminMaintainerDep
 ):
     user = get_user_by_id(session=session, user_id=user_id)
     if not user or (current_user.role == Role.MAINTAINER \
@@ -149,7 +145,6 @@ def deactivate_user(
     
     user_data = user.model_dump()
     user_data['is_active'] = False
-    print(user_data)
     user_in = User(**user_data)
     updated_user = update_user(
         session=session,
@@ -164,9 +159,7 @@ def deactivate_user(
 def activate_user(
     session: SessionDep,
     user_id: uuid.UUID,
-    current_user: Annotated[User, Depends(
-        get_current_active_user_admin_or_maintainer
-    )]
+    current_user: ActiveAdminMaintainerDep
 ):
     user = get_user_by_id(session=session, user_id=user_id)
     if not user or (current_user.role == Role.MAINTAINER \
@@ -183,7 +176,7 @@ def activate_user(
         )
     
     user_data = user.model_dump()
-    user_data['is_active'] = False
+    user_data['is_active'] = True
     user_in = User(**user_data)
     updated_user = update_user(
         session=session,
@@ -194,13 +187,11 @@ def activate_user(
     return updated_user
 
 
-@router.delete("/{user_id}")
+@router.delete("/{user_id}", response_model=Message)
 def delete_account(
     session: SessionDep,
     user_id: uuid.UUID,
-    current_user: Annotated[User, Depends(
-        get_current_active_user_admin_or_maintainer
-    )]
+    current_user: ActiveAdminMaintainerDep
 ):
     user = get_user_by_id(session=session, user_id=user_id)
     if not user or (current_user.role == Role.MAINTAINER \
@@ -212,4 +203,4 @@ def delete_account(
     
     remove_user(session=session, user=user)
     
-    return {"message": f"User {user_id} removed"}
+    return Message(message=f"User {user_id} removed")

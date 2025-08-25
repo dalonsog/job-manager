@@ -1,13 +1,17 @@
 import uuid
 from typing import Annotated
 from fastapi import APIRouter, HTTPException, status, Body, Depends
-from jobmanager.models.dbmodels import Account, User
-from jobmanager.models.user import Role
-from jobmanager.models.account import AccountRegister, AccountCreate, AccountPublic
 from jobmanager.core.deps import (
     SessionDep,
-    get_current_active_user,
+    ActiveUserDep,
     get_current_active_user_admin
+)
+from jobmanager.models.user import Role
+from jobmanager.models.message import Message
+from jobmanager.models.account import (
+    AccountRegister,
+    AccountCreate,
+    AccountPublic
 )
 from jobmanager.crud.account import (
     create_account,
@@ -35,7 +39,7 @@ def read_accounts(session: SessionDep, skip: int = 0, limit: int = 100):
 def read_account(
     session: SessionDep,
     account_id: uuid.UUID,
-    current_user: Annotated[User, Depends(get_current_active_user)]
+    current_user: ActiveUserDep
 ):
     account = get_account_by_id(session=session, account_id=account_id)
     if not account:
@@ -82,10 +86,7 @@ def create_new_account(
     dependencies=[Depends(get_current_active_user_admin)],
     response_model=AccountPublic
 )
-def deactivate_account(
-    session: SessionDep,
-    account_id: uuid.UUID,
-):
+def deactivate_account(session: SessionDep, account_id: uuid.UUID):
     account = get_account_by_id(session=session, account_id=account_id)
     if not account:
         raise HTTPException(
@@ -118,10 +119,7 @@ def deactivate_account(
     dependencies=[Depends(get_current_active_user_admin)],
     response_model=AccountPublic
 )
-def activate_account(
-    session: SessionDep,
-    account_id: uuid.UUID,
-):
+def activate_account(session: SessionDep, account_id: uuid.UUID):
     account = get_account_by_id(session=session, account_id=account_id)
     if not account:
         raise HTTPException(
@@ -149,7 +147,8 @@ def activate_account(
 
 @router.delete(
     "/{account_id}",
-    dependencies=[Depends(get_current_active_user_admin)]
+    dependencies=[Depends(get_current_active_user_admin)],
+    response_model=Message
 )
 def delete_account(session: SessionDep, account_id: uuid.UUID):
     account = get_account_by_id(session=session, account_id=account_id)
@@ -161,4 +160,4 @@ def delete_account(session: SessionDep, account_id: uuid.UUID):
     
     remove_account(session=session, account=account)
     
-    return {"message": f"Account {account_id} removed"}
+    return Message(message=f"Account {account_id} removed")
