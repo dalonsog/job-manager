@@ -31,6 +31,18 @@ def get_users(
     return users
 
 
+def get_all_users(
+    session: Session,
+    account_id: uuid.UUID | None = None
+) -> list[User]:
+    if account_id:
+        statement = select(User).where(User.account_id == account_id)
+    else:
+        statement = select(User)
+    users = session.exec(statement).all()
+    return users
+
+
 def create_user(
     session: Session,
     user: UserCreate,
