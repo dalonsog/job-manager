@@ -46,7 +46,8 @@ def read_account(
     
     # check whether the current user is not member of the account
     # only admins should be able to see all accounts
-    if current_user.role != Role.ADMIN and account.id != current_user.account_id:
+    if current_user.role != Role.ADMIN \
+            and account.id != current_user.account_id:
         raise HTTPException(
             status_code=status.HTTP_401_UNAUTHORIZED,
             detail="Not enough privileges"

@@ -1,15 +1,12 @@
-import os
 from datetime import timedelta
 from typing import Annotated
 from fastapi import APIRouter, HTTPException, status, Depends
 from fastapi.security import OAuth2PasswordRequestForm
 from jobmanager.models.token import Token
+from jobmanager.core.config import settings
 from jobmanager.core.deps import SessionDep
 from jobmanager.crud.user import authenticate_user
 from jobmanager.core.security import create_access_token
-
-
-ACCESS_TOKEN_EXPIRE_MINUTES = int(os.environ.get("ACCESS_TOKEN_EXPIRE_MINUTES"))
 
 
 router = APIRouter(prefix="/auth", tags=["auth"])
@@ -40,7 +37,7 @@ async def login(
     
     access_token = create_access_token(
         data={"sub": user.email},
-        expires_delta=timedelta(minutes=ACCESS_TOKEN_EXPIRE_MINUTES)
+        expires_delta=timedelta(minutes=settings.ACCESS_TOKEN_EXPIRE_MINUTES)
     )
     token = Token(access_token=access_token, token_type="bearer")
     return token

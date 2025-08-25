@@ -26,9 +26,9 @@ def get_users(
     account_id: uuid.UUID | None = None
 ) -> list[User]:
     if account_id:
-        pre_statement = select(User)
-    else:
         pre_statement = select(User).where(User.account_id == account_id)
+    else:
+        pre_statement = select(User)
     statement = pre_statement.offset(offset).limit(limit)
     users = session.exec(statement).all()
     return users
@@ -60,4 +60,23 @@ def authenticate_user(
     user = get_user_by_email(session, user_email)
     if not user or not verify_password(user_pwd, user.hashed_password):
         return False
+    return user
+
+
+def remove_user(session: Session, user: User) -> None:
+    session.delete(user)
+    session.commit()
+
+
+def update_user(
+    session: Session,
+    user: User,
+    user_in: User
+) -> User:
+    user_data = user_in.model_dump(exclude_unset=True)
+    extra_data = {}
+    user.sqlmodel_update(user_data, update=extra_data)
+    session.add(user)
+    session.commit()
+    session.refresh(user)
     return user

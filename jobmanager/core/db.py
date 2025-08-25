@@ -1,8 +1,8 @@
-import os
 from sqlmodel import SQLModel, Session, create_engine, select
 from jobmanager.models.dbmodels import User, Account
 from jobmanager.models.account import AccountCreate
 from jobmanager.models.user import UserCreate, Role
+from jobmanager.core.config import settings
 from jobmanager.crud.account import create_account
 from jobmanager.crud.user import create_user
 
@@ -20,12 +20,12 @@ def init_db():
     with Session(engine) as session:
         # create admin account if it does not exist
         statement = select(Account).where(
-            Account.name == os.environ.get('ADMIN_ACCOUNT')
+            Account.name == settings.ADMIN_ACCOUNT
         )
         admin_account = session.exec(statement).first()
         if not admin_account:
             account_in = AccountCreate(
-                name=os.environ.get('ADMIN_ACCOUNT'),
+                name=settings.ADMIN_ACCOUNT,
                 is_global=True,
             )
             admin_account = create_account(session=session, account=account_in)
@@ -33,13 +33,13 @@ def init_db():
 
         # create admin user if it does not exist
         statement = select(User).where(
-            User.email == os.environ.get('ADMIN_EMAIL')
+            User.email == settings.ADMIN_EMAIL
         )
         admin_user = session.exec(statement).first()
         if not admin_user:
             user_in = UserCreate(
-                email=os.environ.get('ADMIN_EMAIL'),
-                password=os.environ.get('ADMIN_PASSWORD'),
+                email=settings.ADMIN_EMAIL,
+                password=settings.ADMIN_PASSWORD,
                 role=Role.ADMIN,
             )
             admin_user = create_user(
