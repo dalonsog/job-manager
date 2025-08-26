@@ -1,0 +1,28 @@
+[project]
+name = "jobmanager"
+version = "0.1.0"
+description = "Simple REST API built on FastAPI"
+requires-python = ">=3.10"
+readme = "README.md"
+license = "MIT"
+dependencies = [
+    "fastapi[standard]>=0.116.1",
+    "bcrypt==4.0.1",
+    "passlib>=1.7.4",
+    "pydantic>=2.11.7",
+    "pydantic-settings>=2.10.1",
+    "PyJWT>=2.10.1",
+    "sqlmodel>=0.0.24",
+]
+
+[project.optional-dependencies]
+tests = [
+  'pytest>=8.0.0',
+]
+
+[project.urls]
+Repository = "https://github.com/dalonsog/job-manager"
+
+[build-system]
+requires = ["hatchling >= 1.26"]
+build-backend = "hatchling.build"
