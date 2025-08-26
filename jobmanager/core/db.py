@@ -1,4 +1,5 @@
 from sqlmodel import SQLModel, Session, create_engine, select
+from sqlalchemy import Engine
 from jobmanager.models.dbmodels import User, Account
 from jobmanager.models.account import AccountCreate
 from jobmanager.models.user import UserCreate, Role
@@ -7,14 +8,11 @@ from jobmanager.crud.account import create_account
 from jobmanager.crud.user import create_user
 
 
-sqlite_file_name = "database.db"
-sqlite_url = f"sqlite:///{sqlite_file_name}"
-
 connect_args = {"check_same_thread": False}
-engine = create_engine(sqlite_url, connect_args=connect_args)
+engine = create_engine(settings.DATABASE_URL, connect_args=connect_args)
 
 
-def init_db():
+def init_db(engine: Engine):
     SQLModel.metadata.create_all(engine)
 
     with Session(engine) as session:
