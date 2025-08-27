@@ -2,6 +2,9 @@ import uuid
 import json
 from fastapi.testclient import TestClient
 
+account_data = {"name": "account3"}
+
+
 def test_read_accounts_no_auth(client: TestClient) -> None:
     response = client.get("/accounts/")
     assert response.status_code == 401
@@ -77,7 +80,6 @@ def test_create_account_no_privileges(
     client: TestClient,
     maintainer_data: dict
 ) -> None:
-    account_data = {"name": "account3"}
     response = client.post(
         "/accounts/",
         headers={"Authorization": f"Bearer {maintainer_data.get("token")}"},
@@ -103,7 +105,6 @@ def test_create_account_successful(
     client: TestClient,
     admin_data: dict
 ) -> None:
-    account_data = {"name": "account3"}
     response = client.post(
         "/accounts/",
         headers={"Authorization": f"Bearer {admin_data.get("token")}"},
@@ -112,6 +113,7 @@ def test_create_account_successful(
     assert response.status_code == 201
     response_data: dict = response.json()
     assert response_data.get("name") == account_data.get("name")
+    account_data.update(**response_data)
 
 
 def test_deactivate_account_no_privileges(
@@ -204,3 +206,30 @@ def test_activate_account_already_activated(
         headers={"Authorization": f"Bearer {admin_data.get("token")}"}
     )
     assert response.status_code == 400
+
+
+def test_delete_account_no_privileges(
+    client: TestClient,
+    maintainer_data: dict
+) -> None:
+    response = client.delete(
+        f"/accounts/{account_data.get("id")}",
+        headers={"Authorization": f"Bearer {maintainer_data.get("token")}"}
+    )
+    assert response.status_code == 401
+
+
+def test_delete_account_successful(
+    client: TestClient,
+    admin_data: dict
+) -> None:
+    response = client.delete(
+        f"/accounts/{account_data.get("id")}",
+        headers={"Authorization": f"Bearer {admin_data.get("token")}"}
+    )
+    assert response.status_code == 200
+    response = client.get(
+        f"/accounts/{account_data.get("id")}",
+        headers={"Authorization": f"Bearer {admin_data.get("token")}"}
+    )
+    assert response.status_code == 404

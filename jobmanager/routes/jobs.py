@@ -29,6 +29,7 @@ def read_jobs(
     current_user: ActiveUserDep,
     skip: int = 0,
     limit: int = 100,
+    status: Status | None = None
 ):
     users_in_account = get_all_users(
         session=session,
@@ -39,7 +40,8 @@ def read_jobs(
         session=session,
         offset=skip,
         limit=limit,
-        owner_id=users_id_list
+        owner_id=users_id_list,
+        status=status
     )
     return jobs
 
@@ -50,12 +52,14 @@ def read_own_jobs(
     current_user: ActiveUserDep,
     skip: int = 0,
     limit: int = 100,
+    status: Status | None = None
 ):
     jobs = get_all_jobs(
         session=session,
         offset=skip,
         limit=limit,
-        owner_id=[current_user.id]
+        owner_id=[current_user.id],
+        status=status
     )
     return jobs
 
@@ -65,15 +69,17 @@ def read_own_jobs(
     dependencies=[Depends(get_current_active_user_admin)],
     response_model=list[JobPublic]
 )
-def read_own_jobs(
+def read_all_jobs(
     session: SessionDep,
     skip: int = 0,
     limit: int = 100,
+    status: Status | None = None
 ):
     jobs = get_all_jobs(
         session=session,
         offset=skip,
-        limit=limit
+        limit=limit,
+        status=status
     )
     return jobs
 

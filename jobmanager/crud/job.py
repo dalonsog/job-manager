@@ -13,12 +13,17 @@ def get_all_jobs(
     session: Session,
     offset: int,
     limit: int,
-    owner_id: list[uuid.UUID] | None = None
+    owner_id: list[uuid.UUID] | None = None,
+    status: Status | None = None
 ) -> list[Job]:
+    pre_statement = select(Job)
+    
     if owner_id and len(owner_id):
-        pre_statement = select(Job).where(col(Job.owner_id).in_(owner_id))
-    else:
-        pre_statement = select(Job)
+        pre_statement = pre_statement.where(col(Job.owner_id).in_(owner_id))
+    
+    if status:
+        pre_statement = pre_statement.where(Job.status == status)
+    
     statement = pre_statement.offset(offset).limit(limit)
     jobs = session.exec(statement).all()
     return jobs

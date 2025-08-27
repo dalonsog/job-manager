@@ -5,7 +5,7 @@ from jobmanager.crud.job import create_job
 from jobmanager.models.dbmodels import Account, User, Job
 from jobmanager.models.account import AccountCreate
 from jobmanager.models.user import UserCreate, Role
-from jobmanager.models.job import JobCreate
+from jobmanager.models.job import JobCreate, Status
 from jobmanager.core.config import settings
 
 
@@ -15,7 +15,7 @@ def init_test_db(engine):
     with Session(engine) as session:
         accounts = _create_accounts(session)
         users = _create_users(session, accounts)
-        #jobs = _create_jobs(session, users)
+        _ = _create_jobs(session, users)
 
 
 def _create_accounts(session) -> dict[str, Account]:
@@ -75,5 +75,60 @@ def _create_users(
     }
 
 
-def _create_jobs(session) -> dict[str, Job]:
-    pass
+def _create_jobs(session: Session, users: dict[str, User]) -> dict[str, Job]:
+    return {
+        "job1": create_job(
+            session=session,
+            job=JobCreate(
+                name="job1",
+                command="cd.. && npm ci"
+            ),
+            owner_id=users.get("developer1").id,
+            status=Status.RUNNING
+        ),
+        "job2": create_job(
+            session=session,
+            job=JobCreate(
+                name="job2",
+                command="cd.. && npm ci"
+            ),
+            owner_id=users.get("developer1").id,
+            status=Status.RUNNING
+        ),
+        "job3": create_job(
+            session=session,
+            job=JobCreate(
+                name="job3",
+                command="cd.. && npm ci"
+            ),
+            owner_id=users.get("developer1").id,
+            status=Status.STOPPED
+        ),
+        "job4": create_job(
+            session=session,
+            job=JobCreate(
+                name="job4",
+                command="cd.. && npm ci"
+            ),
+            owner_id=users.get("developer1").id,
+            status=Status.RUNNING
+        ),
+        "job5": create_job(
+            session=session,
+            job=JobCreate(
+                name="job5",
+                command="cd.. && npm ci"
+            ),
+            owner_id=users.get("developer2").id,
+            status=Status.RUNNING
+        ),
+        "job6": create_job(
+            session=session,
+            job=JobCreate(
+                name="job6",
+                command="cd.. && npm ci"
+            ),
+            owner_id=users.get("developer2").id,
+            status=Status.STOPPED
+        ),
+    }
