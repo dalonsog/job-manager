@@ -103,7 +103,7 @@ def read_job(
     return job
 
 
-@router.post("/", response_model=JobPublic)
+@router.post("/", response_model=JobPublic, status_code=status.HTTP_201_CREATED)
 def create_new_job(
     session: SessionDep,
     current_user: ActiveUserDep,
@@ -121,7 +121,7 @@ def create_new_job(
     return created_job
 
 
-@router.put("/{job_id}/stop", response_model=JobPublic)
+@router.put("/{job_id}/stop", response_model=Message)
 def stop_job(
     session: SessionDep,
     job_id: uuid.UUID,
@@ -164,10 +164,10 @@ def stop_job(
         job_in=job_in
     )
 
-    return updated_job
+    return Message(message=f"Job {updated_job.id} successfully stopped")
 
 
-@router.put("/{job_id}/run", response_model=JobPublic)
+@router.put("/{job_id}/run", response_model=Message)
 def run_job(
     session: SessionDep,
     job_id: uuid.UUID,
@@ -210,7 +210,7 @@ def run_job(
         job_in=job_in
     )
 
-    return updated_job
+    return Message(message=f"Job {updated_job.id} successfully running")
 
 
 @router.delete("/{job_id}", response_model=Message)

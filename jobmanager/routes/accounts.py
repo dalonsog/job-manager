@@ -63,7 +63,8 @@ def read_account(
 @router.post(
     "/",
     dependencies=[Depends(get_current_active_user_admin)],
-    response_model=AccountPublic
+    response_model=AccountPublic,
+    status_code=status.HTTP_201_CREATED
 )
 def create_new_account(
     session: SessionDep,
@@ -84,7 +85,7 @@ def create_new_account(
 @router.put(
     "/{account_id}/deactivate",
     dependencies=[Depends(get_current_active_user_admin)],
-    response_model=AccountPublic
+    response_model=Message
 )
 def deactivate_account(session: SessionDep, account_id: uuid.UUID):
     account = get_account_by_id(session=session, account_id=account_id)
@@ -111,13 +112,15 @@ def deactivate_account(session: SessionDep, account_id: uuid.UUID):
         account_in=account_in
     )
 
-    return updated_account
+    return Message(
+        message=f"Account {updated_account.id} successfully deactivated"
+    )
 
 
 @router.put(
     "/{account_id}/activate",
     dependencies=[Depends(get_current_active_user_admin)],
-    response_model=AccountPublic
+    response_model=Message
 )
 def activate_account(session: SessionDep, account_id: uuid.UUID):
     account = get_account_by_id(session=session, account_id=account_id)
@@ -142,7 +145,9 @@ def activate_account(session: SessionDep, account_id: uuid.UUID):
         account_in=account_in
     )
 
-    return updated_account
+    return Message(
+        message=f"Account {updated_account.id} successfully activated"
+    )
 
 
 @router.delete(

@@ -63,7 +63,11 @@ def read_user(
     return user
 
 
-@router.post("/", response_model=UserPublic)
+@router.post(
+    "/",
+    response_model=UserPublic,
+    status_code=status.HTTP_201_CREATED
+)
 def create_new_user(
     session: SessionDep,
     user: Annotated[UserCreate, Body()],
@@ -123,7 +127,7 @@ def create_new_user(
     return created_user
 
 
-@router.put("/{user_id}/deactivate", response_model=UserPublic)
+@router.put("/{user_id}/deactivate", response_model=Message)
 def deactivate_user(
     session: SessionDep,
     user_id: uuid.UUID,
@@ -152,10 +156,10 @@ def deactivate_user(
         user_in=user_in
     )
 
-    return updated_user
+    return Message(message=f"User {updated_user.id} successfully deactivated")
 
 
-@router.put("/{user_id}/activate", response_model=UserPublic)
+@router.put("/{user_id}/activate", response_model=Message)
 def activate_user(
     session: SessionDep,
     user_id: uuid.UUID,
@@ -184,11 +188,11 @@ def activate_user(
         user_in=user_in
     )
 
-    return updated_user
+    return Message(message=f"User {updated_user.id} successfully activated")
 
 
 @router.delete("/{user_id}", response_model=Message)
-def delete_account(
+def delete_user(
     session: SessionDep,
     user_id: uuid.UUID,
     current_user: ActiveAdminMaintainerDep
