@@ -8,8 +8,15 @@ from jobmanager.crud.account import create_account
 from jobmanager.crud.user import create_user
 
 
-connect_args = {"check_same_thread": False}
-engine = create_engine(settings.DATABASE_URL, connect_args=connect_args)
+def get_engine():
+    database_url = (
+        f"postgresql://{settings.POSTGRES_USER}:"
+        f"{settings.POSTGRES_PASSWORD}"
+        f"@{settings.POSTGRES_HOST}:"
+        f"{settings.POSTGRES_PORT}/"
+        f"{settings.POSTGRES_DB}"
+    )
+    return create_engine(database_url, echo=False)
 
 
 def init_db(engine: Engine):

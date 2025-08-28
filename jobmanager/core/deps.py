@@ -3,7 +3,7 @@ from sqlmodel import Session
 from fastapi import Depends, HTTPException, status
 from fastapi.security import OAuth2PasswordBearer
 from jwt.exceptions import InvalidTokenError
-from jobmanager.core.db import engine
+from jobmanager.core.db import get_engine
 from jobmanager.core.security import get_token_payload
 from jobmanager.models.dbmodels import User
 from jobmanager.models.user import Role
@@ -15,7 +15,7 @@ oauth_scheme = OAuth2PasswordBearer(tokenUrl="/auth/login")
 
 
 def get_session() -> Generator:
-    with Session(engine) as session:
+    with Session(get_engine()) as session:
         yield session
 
 

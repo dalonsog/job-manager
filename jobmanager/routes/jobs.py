@@ -46,7 +46,7 @@ def read_jobs(
     return jobs
 
 
-@router.get("/own", response_model=list[JobPublic])
+@router.get("/own/", response_model=list[JobPublic])
 def read_own_jobs(
     session: SessionDep,
     current_user: ActiveUserDep,
@@ -65,7 +65,7 @@ def read_own_jobs(
 
 
 @router.get(
-    "/all",
+    "/all/",
     dependencies=[Depends(get_current_active_user_admin)],
     response_model=list[JobPublic]
 )
