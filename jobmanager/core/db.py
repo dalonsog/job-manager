@@ -3,20 +3,13 @@ from sqlalchemy import Engine
 from jobmanager.models.dbmodels import User, Account
 from jobmanager.models.account import AccountCreate
 from jobmanager.models.user import UserCreate, Role
-from jobmanager.core.config import settings
+from jobmanager.core.config import settings, DATABASE_URL
 from jobmanager.crud.account import create_account
 from jobmanager.crud.user import create_user
 
 
 def get_engine():
-    database_url = (
-        f"postgresql://{settings.POSTGRES_USER}:"
-        f"{settings.POSTGRES_PASSWORD}"
-        f"@{settings.POSTGRES_HOST}:"
-        f"{settings.POSTGRES_PORT}/"
-        f"{settings.POSTGRES_DB}"
-    )
-    return create_engine(database_url, echo=False)
+    return create_engine(DATABASE_URL, echo=False)
 
 
 def init_db(engine: Engine):

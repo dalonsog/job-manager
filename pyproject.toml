@@ -7,14 +7,15 @@ readme = "README.md"
 license = "MIT"
 license-files = ["LICEN[CS]E*"]
 dependencies = [
-    "fastapi[standard]>=0.116.1",
+    "alembic<2.0.0,>=1.16.5",
+    "fastapi[standard]<1.0.0,>=0.116.1",
     "bcrypt==4.0.1",
-    "passlib>=1.7.4",
+    "passlib<2.0.0,>=1.7.4",
     "pydantic>=2.11.7",
-    "psycopg2-binary>=2.9.10",
-    "pydantic-settings>=2.10.1",
-    "PyJWT>=2.10.1",
-    "sqlmodel>=0.0.24",
+    "psycopg2-binary<3.0.0,>=2.9.10",
+    "pydantic-settings<3.0.0,>=2.10.1",
+    "PyJWT<3.0.0,>=2.10.1",
+    "sqlmodel<1.0.0,>=0.0.24",
 ]
 
 [project.optional-dependencies]

@@ -1,9 +1,11 @@
 dev:
 	docker compose build
 	docker compose up -d
+	docker exec -it app alembic upgrade head
 	docker exec -it app python jobmanager/scripts/init_db.py
 
 init-db:
+	docker exec -it app alembic upgrade head
 	docker exec -it app python jobmanager/scripts/init_db.py
 
 up:

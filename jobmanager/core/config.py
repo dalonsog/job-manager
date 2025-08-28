@@ -26,3 +26,12 @@ class Settings(BaseSettings):
 
 
 settings = Settings()
+
+
+DATABASE_URL: str = (
+    f"postgresql://{settings.POSTGRES_USER}:"
+    f"{settings.POSTGRES_PASSWORD}"
+    f"@{settings.POSTGRES_HOST}:"
+    f"{settings.POSTGRES_PORT}/"
+    f"{settings.POSTGRES_DB}"
+)
